@@ -15,6 +15,12 @@
         app:showAsAction="never"/>
 
     <item
+        android:id="@+id/mnu_history"
+        android:orderInCategory="300"
+        android:title="history record"
+        app:showAsAction="never"/>
+
+    <item
         android:id="@+id/mnu_exit"
         android:orderInCategory="300"
         android:title="exit"

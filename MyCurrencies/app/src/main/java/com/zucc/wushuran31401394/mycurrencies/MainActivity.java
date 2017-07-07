@@ -1,16 +1,19 @@
 package com.zucc.wushuran31401394.mycurrencies;
 
 import android.app.ProgressDialog;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.AssetManager;
+import android.database.sqlite.SQLiteDatabase;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
@@ -39,6 +42,10 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     private Spinner mForSpinner,mHomSpinner;
     private String[] mCurrencies;
 
+    private MyDatabaseHelper dbHelper;
+    private  SQLiteDatabase db ;
+
+
     public static final String FOR = "FOR_CURRENCY";
     public static final String HOM = "HOM_CURRENCY";
 
@@ -57,6 +64,10 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        //创建数据库
+        dbHelper = new MyDatabaseHelper(this,"Currency.db",null,1);
+        db = dbHelper.getWritableDatabase();
 
         //unpack ArrayList from the bundle and convert to array
         ArrayList<String> arrayList = ((ArrayList<String>)
@@ -121,6 +132,11 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             case R.id.mnu_codes:
                 //TODO define behavior here
                 launchBrowser(SplashActivity.URL_CODES);
+                break;
+            
+            case R.id.mnu_history:
+                Intent intent = new Intent(MainActivity.this, HistoryActivity.class);
+                startActivity(intent);
                 break;
 
             case R.id.mnu_exit:
@@ -218,6 +234,12 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     }
 
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
+    }
+
     private class CurrencyConverterTask extends AsyncTask<String, Void, JSONObject> {
         private ProgressDialog progressDialog;
         @Override
@@ -272,16 +294,16 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 e.printStackTrace();
             }
             mConvertedTextView.setText(DECIMAL_FORMAT.format(dCalculated) + " " + strHomCode);
-            //Sqlite
 
+            //把数据存储到数据库中
+            ContentValues values = new ContentValues();
+            values.put("before",mAmountEditText.getText().toString());
+            values.put("before_currency",strForCode);
+            values.put("after",DECIMAL_FORMAT.format(dCalculated));
+            values.put("after_currency",strHomCode);
+            db.insert("Currency",null,values);
 
-            //
             progressDialog.dismiss();
-
-            //for testing
-//            if (mCurrencyTaskCallback != null) {
-            //               mCurrencyTaskCallback.executionDone();
-            //          }
         }
     }
 
