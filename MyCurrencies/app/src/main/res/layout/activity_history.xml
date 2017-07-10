@@ -44,16 +44,6 @@
             android:layout_weight="0.1" />
     </LinearLayout>
 
-    <!--<FrameLayout-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="match_parent"-->
-        <!--android:layout_below="@+id/linearLayout">-->
-
-        <!--<ListView-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="match_parent" />-->
-    <!--</FrameLayout>-->
-
     <ListView
         android:id="@+id/historylist"
         android:layout_width="match_parent"

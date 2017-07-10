@@ -21,6 +21,12 @@
         app:showAsAction="never"/>
 
     <item
+        android:id="@+id/mnu_rate"
+        android:orderInCategory="300"
+        android:title="rate chart"
+        app:showAsAction="never"/>
+
+    <item
         android:id="@+id/mnu_exit"
         android:orderInCategory="300"
         android:title="exit"

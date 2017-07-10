@@ -13,6 +13,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -69,6 +70,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         dbHelper = new MyDatabaseHelper(this,"Currency.db",null,1);
         db = dbHelper.getWritableDatabase();
 
+
+
         //unpack ArrayList from the bundle and convert to array
         ArrayList<String> arrayList = ((ArrayList<String>)
                 getIntent().getSerializableExtra(SplashActivity.KEY_ARRAYLIST));
@@ -119,6 +122,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             }
         });
         mKey = getKey("open_key");
+        new RateTask().execute(URL_BASE+mKey);
     }
 
     @Override
@@ -137,6 +141,11 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             case R.id.mnu_history:
                 Intent intent = new Intent(MainActivity.this, HistoryActivity.class);
                 startActivity(intent);
+                break;
+
+            case R.id.mnu_rate:
+                Intent intent1 = new Intent(MainActivity.this, RateActivity.class);
+                startActivity(intent1);
                 break;
 
             case R.id.mnu_exit:
@@ -159,7 +168,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     private void launchBrowser(String strUri) {
         if (isOnline()) {
             Uri uri = Uri.parse(strUri);
-//call an implicit intent
+            //称为隐含意图
             Intent intent = new Intent(Intent.ACTION_VIEW, uri);
             startActivity(intent);
         }
@@ -235,10 +244,46 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     }
 
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
+        // 充气菜单; 如果存在，则会将该项目添加到操作栏。
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
+
+
+    private class RateTask extends AsyncTask<String, Void, JSONObject> {
+        @Override
+        protected void onPreExecute() {
+//            Toast.makeText(mContext,"Y",Toast.LENGTH_SHORT).show();
+        }
+        @Override
+        protected JSONObject doInBackground(String... params) {
+            while(true){
+                JSONObject jsonObject =  new JSONParser().getJSONFromUrl(params[0]);
+                try {
+                    if (jsonObject == null){
+                        throw new JSONException("no data available.");
+                    }
+                    JSONObject jsonRates = jsonObject.getJSONObject(RATES);
+                    //把数据存储到数据库中
+                    ContentValues values = new ContentValues();
+                    values.put("time",System.currentTimeMillis());
+                    values.put("rate",jsonRates.getDouble("CNY"));
+                    db.insert("Rate",null,values);
+                    Thread.sleep(20000);
+                } catch (JSONException e) {
+                    Log.d("error", "There's been a JSON exception: " + e.getMessage());
+                    e.printStackTrace();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        @Override
+        protected void onPostExecute(JSONObject jsonObject) {
+
+        }
+    }
+
 
     private class CurrencyConverterTask extends AsyncTask<String, Void, JSONObject> {
         private ProgressDialog progressDialog;
@@ -267,8 +312,10 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             double dCalculated = 0.0;
             String strForCode =
                     extractCodeFromCurrency(mCurrencies[mForSpinner.getSelectedItemPosition()]);
+            Log.d("strForCode",strForCode);
             String strHomCode = extractCodeFromCurrency(mCurrencies[mHomSpinner.
                     getSelectedItemPosition()]);
+            Log.d("strHomCode",strHomCode);
             String strAmount = mAmountEditText.getText().toString();
             try {
                 if (jsonObject == null){
@@ -277,6 +324,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 JSONObject jsonRates = jsonObject.getJSONObject(RATES);
                 if (strHomCode.equalsIgnoreCase("USD")){
                     dCalculated = Double.parseDouble(strAmount) / jsonRates.getDouble(strForCode);
+                    Log.d("aaa", String.valueOf(jsonRates.getDouble(strForCode)));
                 } else if (strForCode.equalsIgnoreCase("USD")) {
                     dCalculated = Double.parseDouble(strAmount) * jsonRates.getDouble(strHomCode) ;
                 }
@@ -302,7 +350,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             values.put("after",DECIMAL_FORMAT.format(dCalculated));
             values.put("after_currency",strHomCode);
             db.insert("Currency",null,values);
-
             progressDialog.dismiss();
         }
     }
