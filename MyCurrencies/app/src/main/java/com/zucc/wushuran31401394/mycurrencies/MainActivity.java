@@ -269,7 +269,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                     values.put("time",System.currentTimeMillis());
                     values.put("rate",jsonRates.getDouble("CNY"));
                     db.insert("Rate",null,values);
-                    Thread.sleep(20000);
+                    Thread.sleep(60000*5);
                 } catch (JSONException e) {
                     Log.d("error", "There's been a JSON exception: " + e.getMessage());
                     e.printStackTrace();

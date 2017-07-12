@@ -11,27 +11,25 @@
     tools:context="com.zucc.wushuran31401394.mycurrencies.RateActivity">
 
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="100dp"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:id="@+id/viewLayout">
-
-        <Button
-            android:text="Button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/button"
-            android:layout_weight="1" />
-    </LinearLayout>
-
-
     <ListView
         android:id="@+id/ratelist"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@+id/viewLayout">
     </ListView>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="230dp"
+        android:id="@+id/viewLayout"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true">
+
+        <lecho.lib.hellocharts.view.LineChartView
+            android:id="@+id/chart"
+            android:paddingLeft="10dp"
+            android:layout_width="match_parent"
+            android:layout_height="233dp" />
+    </LinearLayout>
 </RelativeLayout>
