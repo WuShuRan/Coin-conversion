@@ -70,8 +70,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         dbHelper = new MyDatabaseHelper(this,"Currency.db",null,1);
         db = dbHelper.getWritableDatabase();
 
-
-
         //把SplashActivity传过来的数据保存到数组中，并进行排序
         ArrayList<String> arrayList = ((ArrayList<String>)
                 getIntent().getSerializableExtra(SplashActivity.KEY_ARRAYLIST));
@@ -127,7 +125,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             }
         });
         mKey = getKey("open_key");
-        new RateTask().execute(URL_BASE+mKey);
+        new RateTask(URL_BASE+mKey).start();
     }
 
     //检查是否有网
@@ -257,15 +255,17 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         return true;
     }
 
-    private class RateTask extends AsyncTask<String, Void, JSONObject> {
-        @Override
-        protected void onPreExecute() {
+    private class RateTask extends Thread {
+        private String url = "";
+        public RateTask(String url){
+            this.url = url;
         }
         @Override
-        protected JSONObject doInBackground(String... params) {
+        public void run() {
+            super.run();
             while(true){
-                JSONObject jsonObject =  new JSONParser().getJSONFromUrl(params[0]);
                 try {
+                    JSONObject jsonObject =  new JSONParser().getJSONFromUrl(url);
                     if (jsonObject == null){
                         throw new JSONException("no data available.");
                     }
@@ -275,7 +275,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                     values.put("time",System.currentTimeMillis());
                     values.put("rate",jsonRates.getDouble("CNY"));
                     db.insert("Rate",null,values);
-                    Thread.sleep(60000*5);
+                    sleep(1000*60*5);
                 } catch (JSONException e) {
                     Log.d("error", "There's been a JSON exception: " + e.getMessage());
                     e.printStackTrace();
@@ -283,9 +283,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                     e.printStackTrace();
                 }
             }
-        }
-        @Override
-        protected void onPostExecute(JSONObject jsonObject) {
         }
     }
 
@@ -308,9 +305,11 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                         }
                     });
             progressDialog.show();
+            Log.d("aa","onPreExecute");
         }
         @Override
         protected JSONObject doInBackground(String... params) {
+            Log.d("aa","this is doInBackground");
             Log.w("what?",params[0]);
             Log.w("ex","asda");
             return new JSONParser().getJSONFromUrl(params[0]);
