@@ -24,12 +24,15 @@ public class JSONParser {
     static String sRawJsonString = "";
     public JSONParser() {}
     public JSONObject getJSONFromUrl(String url) {
-//attempt to get response from server
+        //尝试从服务器获取响应
+        Log.d("JSONParser",url);
         try {
+            //http客户端
             DefaultHttpClient httpClient = new DefaultHttpClient();
             HttpPost httpPost = new HttpPost(url);
             HttpResponse httpResponse = httpClient.execute(httpPost);
             HttpEntity httpEntity = httpResponse.getEntity();
+            //获取http的内容
             sInputStream = httpEntity.getContent();
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
@@ -38,26 +41,31 @@ public class JSONParser {
         } catch (IOException e) {
             e.printStackTrace();
         }
-//read stream into string-builder
+        //在数据流里读取内容
         try {
             BufferedReader reader = new BufferedReader(new InputStreamReader(
                     sInputStream, "iso-8859-1"), 8);
             StringBuilder stringBuilder = new StringBuilder();
             String line = null;
             while ((line = reader.readLine()) != null) {
+                //一行一行读取变成一个整体
                 stringBuilder.append(line + "\n");
             }
             sInputStream.close();
+            //辅助
             sRawJsonString = stringBuilder.toString();
+            Log.d("result",sRawJsonString);
         } catch (Exception e) {
-            Log.e("Error reading from Buffer: " + e.toString(), this.getClass().getSimpleName());
+            Log.e("Error reading from: " + e.toString(), this.getClass().getSimpleName());
         }
         try {
+            //解析
             sReturnJsonObject = new JSONObject(sRawJsonString);
+            Log.d("JSON",sReturnJsonObject.getString("disclaimer"));
         } catch (JSONException e) {
             Log.e("Parser", "Error when parsing data " + e.toString());
         }
-//return json object
+        //return json object
         return sReturnJsonObject;
     }
 }

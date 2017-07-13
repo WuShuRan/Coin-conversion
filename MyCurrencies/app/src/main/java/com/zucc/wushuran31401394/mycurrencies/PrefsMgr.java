@@ -12,6 +12,7 @@ public class PrefsMgr {
 
     private static SharedPreferences sSharedPreferences;
 
+    //往文件中存数据
     public static void setString(Context context, String locale, String code ){
         sSharedPreferences =
                 PreferenceManager.getDefaultSharedPreferences(context);
@@ -19,7 +20,7 @@ public class PrefsMgr {
         editor.putString(locale, code);
         editor.commit();
     }
-
+    //读取文件中存数据
     public static String getString(Context context, String locale){
         sSharedPreferences =
                 PreferenceManager.getDefaultSharedPreferences(context);

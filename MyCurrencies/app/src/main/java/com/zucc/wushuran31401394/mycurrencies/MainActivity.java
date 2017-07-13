@@ -72,7 +72,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
 
 
-        //unpack ArrayList from the bundle and convert to array
+        //把SplashActivity传过来的数据保存到数组中，并进行排序
         ArrayList<String> arrayList = ((ArrayList<String>)
                 getIntent().getSerializableExtra(SplashActivity.KEY_ARRAYLIST));
         Collections.sort(arrayList);
@@ -85,7 +85,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         mForSpinner = (Spinner) findViewById(R.id.spn_for);
         mHomSpinner = (Spinner) findViewById(R.id.spn_hom);
 
-        //controller:mediates model and view
+        //显示选择钱币类型的适配器
         ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(
                 //context
                 this,
@@ -101,10 +101,11 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         mHomSpinner.setAdapter(arrayAdapter);
         mForSpinner.setAdapter(arrayAdapter);
 
+        //转换钱币类型的监听事件
         mHomSpinner.setOnItemSelectedListener(this);
         mForSpinner.setOnItemSelectedListener(this);
 
-        //set to shared-preferences or pull from shared-preferences on restart
+        //第一次打开APP转前转后种类的初始化值
         if(savedInstanceState == null && (PrefsMgr.getString(this,FOR) == null && PrefsMgr.getString(this,HOM) == null)){
             mForSpinner.setSelection(findPositionGivenCode("USD",mCurrencies));
             mHomSpinner.setSelection(findPositionGivenCode("CNY",mCurrencies));
@@ -112,12 +113,16 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             PrefsMgr.setString(this,FOR,"USD");
             PrefsMgr.setString(this,HOM,"CNY");
         }else {
+            //上一次关闭时转前转后种类的值
             mForSpinner.setSelection(findPositionGivenCode(PrefsMgr.getString(this,FOR),mCurrencies));
             mHomSpinner.setSelection(findPositionGivenCode(PrefsMgr.getString(this,HOM),mCurrencies));
         }
+
+        //执行获取汇率的任务
         mCalcButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Log.d("new",URL_BASE+mKey);
                 new CurrencyConverterTask().execute(URL_BASE+mKey);
             }
         });
@@ -125,19 +130,33 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         new RateTask().execute(URL_BASE+mKey);
     }
 
+    //检查是否有网
+    public boolean isOnline() {
+        ConnectivityManager cm =
+                (ConnectivityManager)
+                        getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = cm.getActiveNetworkInfo();
+        if (networkInfo != null && networkInfo.isConnectedOrConnecting()) {
+            return true;
+        }
+        return false;
+    }
+
+    //菜单
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         switch (id){
-            case R.id.mnu_invert:
-                //TODO define behavior here
-                invertCurrencies();
-                break;
             case R.id.mnu_codes:
                 //TODO define behavior here
                 launchBrowser(SplashActivity.URL_CODES);
                 break;
-            
+
+            case R.id.mnu_invert:
+                //TODO define behavior here
+                invertCurrencies();
+                break;
+
             case R.id.mnu_history:
                 Intent intent = new Intent(MainActivity.this, HistoryActivity.class);
                 startActivity(intent);
@@ -154,32 +173,25 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         }
         return true;
     }
-
-    public boolean isOnline() {
-        ConnectivityManager cm =
-                (ConnectivityManager)
-                        getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo networkInfo = cm.getActiveNetworkInfo();
-        if (networkInfo != null && networkInfo.isConnectedOrConnecting()) {
-            return true;
-        }
-        return false;
-    }
+    //菜单第一个
     private void launchBrowser(String strUri) {
         if (isOnline()) {
             Uri uri = Uri.parse(strUri);
-            //称为隐含意图
+            //打开网址
             Intent intent = new Intent(Intent.ACTION_VIEW, uri);
             startActivity(intent);
         }
     }
+    //菜单第二个
     private void invertCurrencies() {
+        //保存，转换
         int nFor = mForSpinner.getSelectedItemPosition();
         int nHom = mHomSpinner.getSelectedItemPosition();
         mForSpinner.setSelection(nHom);
         mHomSpinner.setSelection(nFor);
         mConvertedTextView.setText("");
 
+        //显示在EditText里
         PrefsMgr.setString(this, FOR, extractCodeFromCurrency((String)
                 mForSpinner.getSelectedItem()));
         PrefsMgr.setString(this, HOM, extractCodeFromCurrency((String)
@@ -188,7 +200,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-
+        //选择需要转换前后的钱币类型，显示在对应的框内
         switch (parent.getId()) {
 
             case R.id.spn_for:
@@ -209,13 +221,9 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     }
 
-    @Override
-    public void onNothingSelected(AdapterView<?> parent) {
-
-    }
-
     private int findPositionGivenCode(String code, String[] currencies) {
 
+        //找到code（CNY）在列表里是第几个
         for (int i = 0; i < currencies.length; i++) {
             if (extractCodeFromCurrency(currencies[i]).equalsIgnoreCase(code)) {
                 return i;
@@ -224,11 +232,12 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         //default
         return 0;
     }
-
+    //只取前三位
     private String extractCodeFromCurrency(String currency){
         return (currency).substring(0,3);
     }
 
+    //获取assets里的key
     private String getKey(String keyName){
         AssetManager assetManager = this.getResources().getAssets();
         Properties properties = new Properties();
@@ -240,20 +249,17 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             e.printStackTrace();
         }
         return  properties.getProperty(keyName);
-
     }
 
     public boolean onCreateOptionsMenu(Menu menu) {
-        // 充气菜单; 如果存在，则会将该项目添加到操作栏。
+        //气泡菜单，三个点
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
 
-
     private class RateTask extends AsyncTask<String, Void, JSONObject> {
         @Override
         protected void onPreExecute() {
-//            Toast.makeText(mContext,"Y",Toast.LENGTH_SHORT).show();
         }
         @Override
         protected JSONObject doInBackground(String... params) {
@@ -280,15 +286,15 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         }
         @Override
         protected void onPostExecute(JSONObject jsonObject) {
-
         }
     }
-
 
     private class CurrencyConverterTask extends AsyncTask<String, Void, JSONObject> {
         private ProgressDialog progressDialog;
         @Override
         protected void onPreExecute() {
+            super.onPreExecute();
+            //弹窗
             progressDialog = new ProgressDialog(MainActivity.this);
             progressDialog.setTitle("Calculating Result...");
             progressDialog.setMessage("One moment please...");
@@ -305,17 +311,18 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         }
         @Override
         protected JSONObject doInBackground(String... params) {
+            Log.w("what?",params[0]);
+            Log.w("ex","asda");
             return new JSONParser().getJSONFromUrl(params[0]);
         }
         @Override
         protected void onPostExecute(JSONObject jsonObject) {
+            super.onPostExecute(jsonObject);
             double dCalculated = 0.0;
             String strForCode =
                     extractCodeFromCurrency(mCurrencies[mForSpinner.getSelectedItemPosition()]);
-            Log.d("strForCode",strForCode);
             String strHomCode = extractCodeFromCurrency(mCurrencies[mHomSpinner.
                     getSelectedItemPosition()]);
-            Log.d("strHomCode",strHomCode);
             String strAmount = mAmountEditText.getText().toString();
             try {
                 if (jsonObject == null){
@@ -324,7 +331,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 JSONObject jsonRates = jsonObject.getJSONObject(RATES);
                 if (strHomCode.equalsIgnoreCase("USD")){
                     dCalculated = Double.parseDouble(strAmount) / jsonRates.getDouble(strForCode);
-                    Log.d("aaa", String.valueOf(jsonRates.getDouble(strForCode)));
                 } else if (strForCode.equalsIgnoreCase("USD")) {
                     dCalculated = Double.parseDouble(strAmount) * jsonRates.getDouble(strHomCode) ;
                 }
@@ -338,11 +344,12 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                         "There's been a JSON exception: " + e.getMessage(),
                         Toast.LENGTH_LONG
                 ).show();
+                //清除上一次的
                 mConvertedTextView.setText("");
                 e.printStackTrace();
             }
+            //结果在框内显示
             mConvertedTextView.setText(DECIMAL_FORMAT.format(dCalculated) + " " + strHomCode);
-
             //把数据存储到数据库中
             ContentValues values = new ContentValues();
             values.put("before",mAmountEditText.getText().toString());
@@ -350,8 +357,14 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             values.put("after",DECIMAL_FORMAT.format(dCalculated));
             values.put("after_currency",strHomCode);
             db.insert("Currency",null,values);
+            //去掉弹窗
             progressDialog.dismiss();
         }
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> parent) {
+
     }
 
 }

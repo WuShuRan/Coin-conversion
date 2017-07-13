@@ -62,7 +62,8 @@ public class RateActivity extends AppCompatActivity {
             do{
                 long time = cursor.getLong(cursor.getColumnIndex("time"));
                 Date date = new Date(time);
-                String timelistString = (date.getYear()+1900)+"-"+(date.getMonth()+1)+"-"+(date.getDay()+10)+"\t\t"+date.getHours()+":"+date.getMinutes()+":"+date.getSeconds();
+                String timelistString = (date.getYear()+1900)+"-"+(date.getMonth()+1)+"-"+(date.getDay()+10)
+                        +"\t\t"+date.getHours()+":"+date.getMinutes()+":"+date.getSeconds();
                 String timeString = date.getHours()+":"+date.getMinutes()+":"+date.getSeconds();
                 Float rate = cursor.getFloat(cursor.getColumnIndex("rate"));
                 list.add(timelistString+"\t\t\t\t :  \t\t\t\t"+rate);
@@ -90,7 +91,6 @@ public class RateActivity extends AppCompatActivity {
         axisX.setMaxLabelChars(8); //最多几个X轴坐标，意思就是你的缩放让X轴上数据的个数7<=x<=mAxisXValues.length
         axisX.setValues(mAxisXValues);  //填充X轴的坐标名称
         axisX.setHasLines(true); //x 轴分割线
-
         //Y轴是根据数据的大小自动设置Y轴上限
         Axis axisY = new Axis();  //Y轴
         //axisY.setName("");//y轴标注

@@ -30,15 +30,3 @@ dependencies {
     compile files('libs/org.apache.http.legacy.jar')
     compile files('libs/hellocharts-library-1.5.8.jar')
 }
-
-dependencies {
-    compile 'com.github.lecho:hellocharts-library:1.5.8@aar'
-}
-repositories {
-    maven {
-        url "https://jitpack.io"
-    }
-}
-dependencies {
-    compile 'com.github.lecho:hellocharts-android:v1.5.8'
-}

@@ -26,7 +26,8 @@ public class SplashActivity extends AppCompatActivity {
         this.requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_splash);
 
-//新增加的代码
+        //新增加的代码
+        //打开该APP最先运行的页面，用线程获取JSON数据包
         new FetchCodesTask().execute(URL_CODES);
 
     }
@@ -38,6 +39,7 @@ public class SplashActivity extends AppCompatActivity {
         protected JSONObject doInBackground(String... params) {
             return new JSONParser().getJSONFromUrl(params[0]);
         }
+
         @Override
         protected void onPostExecute(JSONObject jsonObject) {
             try {
@@ -47,12 +49,15 @@ public class SplashActivity extends AppCompatActivity {
                 Iterator iterator = jsonObject.keys();
                 String key = "";
                 mCurrencies = new ArrayList<String>();
+                //把Json数据解析的结果存到list里
                 while (iterator.hasNext()) {
                     key = (String) iterator.next();
                     mCurrencies.add(key + " | " + jsonObject.getString(key));
                 }
 
+                //跳转到MainActivity
                 Intent mainIntent = new Intent(SplashActivity.this,MainActivity.class);
+                //把Json数据通过Intent传到MainActivity中
                 mainIntent.putExtra(KEY_ARRAYLIST,mCurrencies);
                 startActivity(mainIntent);
                 finish();

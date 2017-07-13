@@ -23,7 +23,8 @@
             android:layout_height="wrap_content"
             android:inputType="textPersonName"
             android:ems="10"
-            android:hint="转前币种"
+            android:hint="Foreign Currency"
+            android:textSize="15sp"
             android:id="@+id/find_before"
             android:layout_weight="1" />
 
@@ -32,7 +33,8 @@
             android:layout_height="wrap_content"
             android:inputType="textPersonName"
             android:ems="10"
-            android:hint="转后币种"
+            android:hint="Home Currency"
+            android:textSize="15sp"
             android:id="@+id/find_after"
             android:layout_weight="1" />
 

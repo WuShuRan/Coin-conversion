@@ -33,8 +33,9 @@ public class HistoryActivity extends AppCompatActivity {
         mFindafterEditText = (EditText) findViewById(R.id.find_after);
         mFindButton = (Button)findViewById(R.id.find);
 
-        dbHelper = new MyDatabaseHelper(this,"Currency.db",null,1);
 
+
+        dbHelper = new MyDatabaseHelper(this,"Currency.db",null,1);
         db = dbHelper.getWritableDatabase();
         Cursor cursor = db.query("Currency",null,null,null,null,null,null);
         if(cursor.moveToFirst()){
@@ -60,7 +61,8 @@ public class HistoryActivity extends AppCompatActivity {
         mFindButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Cursor cursor = db.query("Currency",null,"before_currency like ? and after_currency like ?",new String[]{"%"+mfindbeforeEditText.getText().toString()+"%","%"+mFindafterEditText.getText().toString()+"%"},null,null,null);
+                Cursor cursor = db.query("Currency",null,"before_currency like ? and after_currency like ?",
+                        new String[]{"%"+mfindbeforeEditText.getText().toString()+"%","%"+mFindafterEditText.getText().toString()+"%"},null,null,null);
                 list.clear();
                 if(cursor.moveToFirst()){
                     do{
@@ -77,7 +79,8 @@ public class HistoryActivity extends AppCompatActivity {
                 }
                 cursor.close();
                 adapter.notifyDataSetChanged();
-                Toast.makeText(HistoryActivity.this,mfindbeforeEditText.getText().toString()+"  "+mFindafterEditText.getText().toString(),Toast.LENGTH_SHORT).show();
+                Toast.makeText(HistoryActivity.this,mfindbeforeEditText.getText().toString()+"  "
+                        +mFindafterEditText.getText().toString(),Toast.LENGTH_SHORT).show();
             }
         });
     }
