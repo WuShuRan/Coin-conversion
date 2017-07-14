@@ -36,8 +36,10 @@ public class RateActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_rate);
+
         chart = (LineChartView)findViewById(R.id.chart);
         listView = (ListView)findViewById(R.id.ratelist);
+
         init();
         initDataBase();
         initData();
@@ -91,6 +93,7 @@ public class RateActivity extends AppCompatActivity {
         axisX.setMaxLabelChars(8); //最多几个X轴坐标，意思就是你的缩放让X轴上数据的个数7<=x<=mAxisXValues.length
         axisX.setValues(mAxisXValues);  //填充X轴的坐标名称
         axisX.setHasLines(true); //x 轴分割线
+
         //Y轴是根据数据的大小自动设置Y轴上限
         Axis axisY = new Axis();  //Y轴
         //axisY.setName("");//y轴标注
@@ -107,6 +110,7 @@ public class RateActivity extends AppCompatActivity {
         line.setHasPoints(false);// 是否显示节点
         LineChartData data = new LineChartData();
         data.setLines(lines);
+
         data.setAxisYLeft(axisY);  //Y轴设置在左边
         data.setAxisXBottom(axisX); //x 轴在底部
         chart.setLineChartData(data);

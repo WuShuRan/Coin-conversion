@@ -4,7 +4,6 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -45,10 +44,6 @@ public class HistoryActivity extends AppCompatActivity {
                 String after = cursor.getString(cursor.getColumnIndex("after"));
                 String after_currency = cursor.getString(cursor.getColumnIndex("after_currency"));
                 list.add("\t"+before +"\t\t\t"+ before_currency +"\t\t\t\t\t=>\t\t\t\t\t"+ after +"\t\t\t"+ after_currency);
-                Log.d("db",before);
-                Log.d("db",before_currency);
-                Log.d("db",after);
-                Log.d("db",after_currency);
             }while (cursor.moveToNext());
         }
         cursor.close();
@@ -71,10 +66,6 @@ public class HistoryActivity extends AppCompatActivity {
                         String after = cursor.getString(cursor.getColumnIndex("after"));
                         String after_currency = cursor.getString(cursor.getColumnIndex("after_currency"));
                         list.add("\t"+before +"\t\t\t"+ before_currency +"\t\t\t\t\t=>\t\t\t\t\t"+ after +"\t\t\t"+ after_currency);
-                        Log.d("db",before);
-                        Log.d("db",before_currency);
-                        Log.d("db",after);
-                        Log.d("db",after_currency);
                     }while (cursor.moveToNext());
                 }
                 cursor.close();
